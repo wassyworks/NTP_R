@@ -1,0 +1,2 @@
+# NTP_R
+rust_prototype_serverに対するクライアントアプリケーション
