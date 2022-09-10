@@ -28,19 +28,30 @@ public class Network : MonoBehaviour
     private const int ClientCount = 0;
 
     private const int SendBufferSize = 1024;
-    private const int ClientRecvBufferSize = 256;
-    private byte[] RecvBuffer = new byte[ClientRecvBufferSize];
+    private static int s_clientRecvBufferSize = 256;
+    private byte[] _recvBuffer = new byte[s_clientRecvBufferSize];
     private const int ConnectTimeout = 3000;
     private const string Address = "127.0.0.1"; // virtualbox
     private const int Port = 44000;
     // private Queue<Tuple<PacketId, ByteBuffer>> ReceivedQueue;
     // private Dictionary<PacketId, Action<ByteBuffer>> DispatchTable; 
+    private Dispatcher _dispatcher;
+
+    // テスト用
+    public void OnSimpleMessageRes(SimpleEntity res)
+    {
+        Debug.LogFormat("OnSimpleMessageRes");
+    }
 
     // Use this for initialization
     void Start()
     {
         // ReceivedQueue = new Queue<Tuple<Packet.Common.PacketId, ByteBuffer>>();
-        // DispatchTable = new Dictionary<PacketId, Action<ByteBuffer>>();
+        _dispatcher = new Dispatcher();
+        _dispatcher.AddFunc(PacketTag.Simple, (Action<SimpleEntity>)OnSimpleMessageRes);
+        var bytes = new byte[100];
+        Array.Fill<byte>(bytes, 1);
+        _dispatcher.Dispatch(PacketTag.Simple, bytes, 100, 0);
 
         Client = new TcpClient();
         Debug.Log("TryConnection");
@@ -169,13 +180,13 @@ public class Network : MonoBehaviour
     public void Recv()
     {
         NetworkStream stream = Client.GetStream();
-        stream.BeginRead(RecvBuffer, 0, ClientRecvBufferSize, new System.AsyncCallback(OnRecv), stream);
-        int readBytes = stream.Read(RecvBuffer, 0, ClientRecvBufferSize);
+        stream.BeginRead(_recvBuffer, 0, s_clientRecvBufferSize, new System.AsyncCallback(OnRecv), stream);
+        int readBytes = stream.Read(_recvBuffer, 0, s_clientRecvBufferSize);
 
         Debug.LogFormat("OnRecv readBytes: {0} ", readBytes);
 
-        var headerBytes = RecvBuffer[0..2];
-        var bodyBytes = RecvBuffer[2..readBytes];
+        var headerBytes = _recvBuffer[0..2];
+        var bodyBytes = _recvBuffer[2..readBytes];
         Array.Reverse(headerBytes);
         var packet_id = BitConverter.ToUInt16(headerBytes);
         Debug.LogFormat("packet_id:{0}", packet_id);
@@ -196,7 +207,7 @@ public class Network : MonoBehaviour
         // Debug.LogFormat("string:{0}", str);
 
 
-        // PacketHeader header = PacketHeader.HeaderDeserialize(RecvBuffer);
+        // PacketHeader header = PacketHeader.HeaderDeserialize(_recvBuffer);
         // Debug.LogFormat("OnRecv:{0}", header.Head.ToString());
     }
 
