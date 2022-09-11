@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 public class SerializeUtil
 {
@@ -76,5 +77,110 @@ public class SerializeUtil
         }
 
         return offset + strbuff.Length;
+    }
+
+    static public int ToBytes(ref byte[] byteArray, int offset, List<long> list)
+    {
+        offset = ToBytes(ref byteArray, offset, (ulong)list.Count);
+        foreach(var item in list)
+        {
+            offset = ToBytes(ref byteArray, offset, item);
+        }
+        return offset;
+    }
+
+    static public int ToBytes(ref byte[] byteArray, int offset, List<ulong> list)
+    {
+        offset = ToBytes(ref byteArray, offset, (ulong)list.Count);
+        foreach(var item in list)
+        {
+            offset = ToBytes(ref byteArray, offset, item);
+        }
+        return offset;
+    }
+
+    static public int ToBytes(ref byte[] byteArray, int offset, List<int> list)
+    {
+        offset = ToBytes(ref byteArray, offset, (ulong)list.Count);
+        foreach(var item in list)
+        {
+            offset = ToBytes(ref byteArray, offset, item);
+        }
+        return offset;
+    }
+
+    static public int ToBytes(ref byte[] byteArray, int offset, List<uint> list)
+    {
+        offset = ToBytes(ref byteArray, offset, (ulong)list.Count);
+        foreach(var item in list)
+        {
+            offset = ToBytes(ref byteArray, offset, item);
+        }
+        return offset;
+    }
+    static public int ToBytes(ref byte[] byteArray, int offset, List<short> list)
+    {
+        offset = ToBytes(ref byteArray, offset, (ulong)list.Count);
+        foreach(var item in list)
+        {
+            offset = ToBytes(ref byteArray, offset, item);
+        }
+        return offset;
+    }
+
+    static public int ToBytes(ref byte[] byteArray, int offset, List<ushort> list)
+    {
+        offset = ToBytes(ref byteArray, offset, (ulong)list.Count);
+        foreach(var item in list)
+        {
+            offset = ToBytes(ref byteArray, offset, item);
+        }
+        return offset;
+    }
+    static public int ToBytes(ref byte[] byteArray, int offset, List<sbyte> list)
+    {
+        offset = ToBytes(ref byteArray, offset, (ulong)list.Count);
+        foreach(var item in list)
+        {
+            offset = ToBytes(ref byteArray, offset, item);
+        }
+        return offset;
+    }
+    static public int ToBytes(ref byte[] byteArray, int offset, List<byte> list)
+    {
+        offset = ToBytes(ref byteArray, offset, (ulong)list.Count);
+        foreach(var item in list)
+        {
+            offset = ToBytes(ref byteArray, offset, item);
+        }
+        return offset;
+    }
+    static public int ToBytes(ref byte[] byteArray, int offset, List<float> list)
+    {
+        offset = ToBytes(ref byteArray, offset, (ulong)list.Count);
+        foreach(var item in list)
+        {
+            offset = ToBytes(ref byteArray, offset, item);
+        }
+        return offset;
+    }
+    static public int ToBytes(ref byte[] byteArray, int offset, List<double> list)
+    {
+        offset = ToBytes(ref byteArray, offset, (ulong)list.Count);
+        foreach(var item in list)
+        {
+            offset = ToBytes(ref byteArray, offset, item);
+        }
+        return offset;
+    }
+
+    static public int ToBytes<T>(ref byte[] byteArray, int offset, IList<T> list) where T : IPacket
+    {
+        offset = ToBytes(ref byteArray, offset, (ulong)list.Count);
+        foreach(var item in list)
+        {
+            offset = item.Desrialize(byteArray, offset);
+        }
+        return offset;
     }
 }

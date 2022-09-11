@@ -24,6 +24,7 @@ public class SimpleEntity : IPacket
         offset = SerializeUtil.ToBytes(ref byteArray, offset, x);
         offset = SerializeUtil.ToBytes(ref byteArray, offset, y);
         offset = SerializeUtil.ToBytes(ref byteArray, offset, name);
+        offset = SerializeUtil.ToBytes(ref byteArray, offset, itemIds);
         offset = SerializeUtil.ToBytes(ref byteArray, offset, hp);
         return offset;
     }
@@ -33,6 +34,7 @@ public class SimpleEntity : IPacket
         (x, offset) = DeserializeUtil.ToFloat(byteArray, offset);
         (y, offset) = DeserializeUtil.ToFloat(byteArray, offset);
         (name, offset) = DeserializeUtil.ToString(byteArray, offset);
+        (itemIds, offset) = DeserializeUtil.ToVecI32(byteArray, offset);
         (hp, offset) = DeserializeUtil.ToU32(byteArray, offset);
         return offset;
     }

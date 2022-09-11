@@ -36,6 +36,7 @@ public class Network : MonoBehaviour
     // private Queue<Tuple<PacketId, ByteBuffer>> ReceivedQueue;
     // private Dictionary<PacketId, Action<ByteBuffer>> DispatchTable; 
     private Dispatcher _dispatcher;
+    private IAsyncResult res;
 
     // テスト用
     public void OnSimpleMessageRes(SimpleEntity res)
@@ -55,6 +56,9 @@ public class Network : MonoBehaviour
         entity.x = 11.1239321f;
         entity.y = -12329.984533f;
         entity.name = "テストユーザー";
+        entity.itemIds.Add(1001);
+        entity.itemIds.Add(1002);
+        entity.itemIds.Add(1003);
         entity.hp = 10000000;
         var len = entity.Serialize(ref bytes, 0);
         _dispatcher.Dispatch(PacketTag.Simple, bytes, len, 0);
@@ -62,6 +66,10 @@ public class Network : MonoBehaviour
         Client = new TcpClient();
         Debug.Log("TryConnection");
         Client.BeginConnect(Address, Port, new System.AsyncCallback(OnConnected), Client);
+    }
+
+    private void OnDestroy()
+    {
     }
 
 
@@ -81,34 +89,27 @@ public class Network : MonoBehaviour
             {
                 Debug.LogFormat("Connect Failed");
                 System.Threading.Thread.Sleep(Mathf.Max(0, ConnectTimeout - 1000));
-                Client.BeginConnect(Address, Port, new System.AsyncCallback(OnConnected), Client);
+                res = Client.BeginConnect(Address, Port, new System.AsyncCallback(OnConnected), Client);
             }
         }
         catch (Exception e)
         {
-            Debug.LogErrorFormat("OnConnected Exception:{0}", e.ToString());
+            Debug.LogErrorFormat("Connect Exception:{0}", e.ToString());
         }
     }
 
     private void OnConnected(System.IAsyncResult ar)
     {
-        try
+        TcpClient result = (TcpClient)ar.AsyncState;
+        if (result.Connected)
         {
-            TcpClient result = (TcpClient)ar.AsyncState;
-            if (result.Connected)
-            {
-                Debug.Log("OnConnected");
-                Recv();
-            }
-            else
-            {
-                System.Threading.Thread.Sleep(Mathf.Max(0, ConnectTimeout - 1000));
-                Client.BeginConnect(Address, Port, new System.AsyncCallback(OnConnected), Client);
-            }
+            Debug.Log("OnConnected");
+            Recv();
         }
-        catch (Exception e)
+        else
         {
-            // Debug.LogErrorFormat ("OnConnected Exception:{0}", e.ToString ());
+            System.Threading.Thread.Sleep(Mathf.Max(0, ConnectTimeout - 1000));
+            Client.BeginConnect(Address, Port, new System.AsyncCallback(OnConnected), Client);
         }
     }
 
