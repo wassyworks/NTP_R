@@ -49,26 +49,22 @@ public class Network : MonoBehaviour
         // ReceivedQueue = new Queue<Tuple<Packet.Common.PacketId, ByteBuffer>>();
         _dispatcher = new Dispatcher();
         _dispatcher.AddFunc(PacketTag.Simple, (Action<SimpleEntity>)OnSimpleMessageRes);
-        var bytes = new byte[100];
-        Array.Fill<byte>(bytes, 1);
-        _dispatcher.Dispatch(PacketTag.Simple, bytes, 100, 0);
+        var bytes = new byte[1024];
+        SimpleEntity entity = new SimpleEntity();
+        entity.playerId = 100100;
+        entity.x = 11.1239321f;
+        entity.y = -12329.984533f;
+        entity.name = "テストユーザー";
+        entity.hp = 10000000;
+        var len = entity.Serialize(ref bytes, 0);
+        _dispatcher.Dispatch(PacketTag.Simple, bytes, len, 0);
 
         Client = new TcpClient();
         Debug.Log("TryConnection");
         Client.BeginConnect(Address, Port, new System.AsyncCallback(OnConnected), Client);
-
-        var entity = new Entity();
-        entity.playerId = 1000100;
-        entity.x = 128.22f;
-        entity.y = 54.129f;
-        entity.name = "";
-        entity.hp = 200000;
-
-        BinaryFormatter bf = new BinaryFormatter();
-        var memstream = new MemoryStream();
-        bf.Serialize(memstream, entity);
-        Debug.LogFormat("memstream len:{0}", memstream.ToArray().Length);
     }
+
+
 
     private void Connect()
     {

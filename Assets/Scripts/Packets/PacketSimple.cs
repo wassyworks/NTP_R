@@ -18,10 +18,14 @@ public class SimpleEntity : IPacket
         return PacketTag.Simple;
     }
 
-    public int Serialize(byte[] byteArray, int offset)
+    public int Serialize(ref byte[] byteArray, int offset)
     {
-
-        return 0;
+        offset = SerializeUtil.ToBytes(ref byteArray, offset, playerId);
+        offset = SerializeUtil.ToBytes(ref byteArray, offset, x);
+        offset = SerializeUtil.ToBytes(ref byteArray, offset, y);
+        offset = SerializeUtil.ToBytes(ref byteArray, offset, name);
+        offset = SerializeUtil.ToBytes(ref byteArray, offset, hp);
+        return offset;
     }
     public int Desrialize(byte[] byteArray, int offset)
     {
