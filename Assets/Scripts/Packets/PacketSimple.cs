@@ -25,14 +25,11 @@ public class SimpleEntity : IPacket
     }
     public int Desrialize(byte[] byteArray, int offset)
     {
-        // playerId = BitConverter.ToUInt64(byteArray, 0);
-        // x = BitConverter.ToSingle(byteArray, 8);
-        // y = BitConverter.ToSingle(byteArray, 12);
-        // var len = BitConverter.ToUInt64(byteArray, 16);
-        // var strBytes = new byte[len];
-        // Array.Copy(byteArray, 24, strBytes, 0, (int)len);
-        // name = System.Text.Encoding.UTF8.GetString(strBytes);
-        // hp = BitConverter.ToUInt32(byteArray, 24 + (int)len);
-        return 0;
+        (playerId, offset) = DeserializeUtil.ToU64(byteArray, offset);
+        (x, offset) = DeserializeUtil.ToFloat(byteArray, offset);
+        (y, offset) = DeserializeUtil.ToFloat(byteArray, offset);
+        (name, offset) = DeserializeUtil.ToString(byteArray, offset);
+        (hp, offset) = DeserializeUtil.ToU32(byteArray, offset);
+        return offset;
     }
 }
