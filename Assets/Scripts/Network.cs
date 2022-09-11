@@ -28,36 +28,43 @@ public class Network : MonoBehaviour
     private const int ClientCount = 0;
 
     private const int SendBufferSize = 1024;
-    private const int ClientRecvBufferSize = 256;
-    private byte[] RecvBuffer = new byte[ClientRecvBufferSize];
+    private static int s_clientRecvBufferSize = 256;
+    private byte[] _recvBuffer = new byte[s_clientRecvBufferSize];
     private const int ConnectTimeout = 3000;
     private const string Address = "127.0.0.1"; // virtualbox
     private const int Port = 44000;
     // private Queue<Tuple<PacketId, ByteBuffer>> ReceivedQueue;
     // private Dictionary<PacketId, Action<ByteBuffer>> DispatchTable; 
+    private Dispatcher _dispatcher;
+
+    // テスト用
+    public void OnSimpleMessageRes(SimpleEntity res)
+    {
+        Debug.LogFormat("OnSimpleMessageRes");
+    }
 
     // Use this for initialization
     void Start()
     {
         // ReceivedQueue = new Queue<Tuple<Packet.Common.PacketId, ByteBuffer>>();
-        // DispatchTable = new Dictionary<PacketId, Action<ByteBuffer>>();
+        _dispatcher = new Dispatcher();
+        _dispatcher.AddFunc(PacketTag.Simple, (Action<SimpleEntity>)OnSimpleMessageRes);
+        var bytes = new byte[1024];
+        SimpleEntity entity = new SimpleEntity();
+        entity.playerId = 100100;
+        entity.x = 11.1239321f;
+        entity.y = -12329.984533f;
+        entity.name = "テストユーザー";
+        entity.hp = 10000000;
+        var len = entity.Serialize(ref bytes, 0);
+        _dispatcher.Dispatch(PacketTag.Simple, bytes, len, 0);
 
         Client = new TcpClient();
         Debug.Log("TryConnection");
         Client.BeginConnect(Address, Port, new System.AsyncCallback(OnConnected), Client);
-
-        var entity = new Entity();
-        entity.playerId = 1000100;
-        entity.x = 128.22f;
-        entity.y = 54.129f;
-        entity.name = "";
-        entity.hp = 200000;
-
-        BinaryFormatter bf = new BinaryFormatter();
-        var memstream = new MemoryStream();
-        bf.Serialize(memstream, entity);
-        Debug.LogFormat("memstream len:{0}", memstream.ToArray().Length);
     }
+
+
 
     private void Connect()
     {
@@ -169,13 +176,13 @@ public class Network : MonoBehaviour
     public void Recv()
     {
         NetworkStream stream = Client.GetStream();
-        stream.BeginRead(RecvBuffer, 0, ClientRecvBufferSize, new System.AsyncCallback(OnRecv), stream);
-        int readBytes = stream.Read(RecvBuffer, 0, ClientRecvBufferSize);
+        stream.BeginRead(_recvBuffer, 0, s_clientRecvBufferSize, new System.AsyncCallback(OnRecv), stream);
+        int readBytes = stream.Read(_recvBuffer, 0, s_clientRecvBufferSize);
 
         Debug.LogFormat("OnRecv readBytes: {0} ", readBytes);
 
-        var headerBytes = RecvBuffer[0..2];
-        var bodyBytes = RecvBuffer[2..readBytes];
+        var headerBytes = _recvBuffer[0..2];
+        var bodyBytes = _recvBuffer[2..readBytes];
         Array.Reverse(headerBytes);
         var packet_id = BitConverter.ToUInt16(headerBytes);
         Debug.LogFormat("packet_id:{0}", packet_id);
@@ -196,7 +203,7 @@ public class Network : MonoBehaviour
         // Debug.LogFormat("string:{0}", str);
 
 
-        // PacketHeader header = PacketHeader.HeaderDeserialize(RecvBuffer);
+        // PacketHeader header = PacketHeader.HeaderDeserialize(_recvBuffer);
         // Debug.LogFormat("OnRecv:{0}", header.Head.ToString());
     }
 
