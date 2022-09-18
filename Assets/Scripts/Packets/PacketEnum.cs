@@ -1,5 +1,6 @@
-public enum PacketTag
+﻿public enum PacketTag
 {
     None,
     Simple,
+    SimpleEntityList,
 }
