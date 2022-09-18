@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
@@ -44,24 +44,46 @@ public class Network : MonoBehaviour
         Debug.LogFormat("OnSimpleMessageRes");
     }
 
+    public void OnSimpleEntityVec(SimpleEntityList list)
+    {
+        Debug.LogFormat("OnSimpleEntityVecRes");
+        foreach (var mem in list.entities)
+        {
+            Debug.LogFormat("mem {0}:{1}", mem.playerId, mem.name);
+
+        }
+    }
+
     // Use this for initialization
     void Start()
     {
         // ReceivedQueue = new Queue<Tuple<Packet.Common.PacketId, ByteBuffer>>();
+        // test code
         _dispatcher = new Dispatcher();
         _dispatcher.AddFunc(PacketTag.Simple, (Action<SimpleEntity>)OnSimpleMessageRes);
-        var bytes = new byte[1024];
+        _dispatcher.AddFunc(PacketTag.SimpleEntityList, (Action<SimpleEntityList>)OnSimpleEntityVec);
+
+        var list = new SimpleEntityList();
+        for(int i = 0; i < 3; ++i)
+        {
         SimpleEntity entity = new SimpleEntity();
-        entity.playerId = 100100;
+        entity.playerId = 100100 + (ulong)i;
         entity.x = 11.1239321f;
         entity.y = -12329.984533f;
-        entity.name = "テストユーザー";
+        entity.name = "テストユーザー" + i;
         entity.itemIds.Add(1001);
         entity.itemIds.Add(1002);
         entity.itemIds.Add(1003);
         entity.hp = 10000000;
-        var len = entity.Serialize(ref bytes, 0);
-        _dispatcher.Dispatch(PacketTag.Simple, bytes, len, 0);
+            list.entities.Add(entity);
+        }
+
+        var bytes = new byte[1024];
+        var len = list.Serialize(ref bytes, 0);
+        _dispatcher.Dispatch(PacketTag.SimpleEntityList, bytes, len, 0);
+
+        // test code
+
 
         Client = new TcpClient();
         Debug.Log("TryConnection");

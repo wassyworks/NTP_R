@@ -77,6 +77,13 @@ public class DeserializeUtil
         return (System.Text.Encoding.UTF8.GetString(strBytes), offset + sizeof(long) + len);
     }
 
+    static public (T, int) ToClass<T>(byte[] byteArray, int offset) where T : IPacket, new()
+    {
+        var obj = new T();
+        offset = obj.Desrialize(byteArray, offset);
+        return (obj, offset);
+    }
+
     static public (List<long>, int) ToVecI64(byte[] byteArray, int offset)
     {
         (var l, var o) = ToU64(byteArray, offset);
@@ -208,7 +215,7 @@ public class DeserializeUtil
         }
         return (list, offset);
     }
-    static public (List<T>, int) ToVec<T>(byte[] byteArray, int offset) where T :IPacket, new()
+    static public (List<T>, int) ToVecClass<T>(byte[] byteArray, int offset) where T :IPacket, new()
     {
         (var l, var o) = ToU64(byteArray, offset);
         var len = (int)Math.Min(l, Int32.MaxValue);

@@ -1,3 +1,4 @@
+ï»¿using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 
@@ -8,7 +9,7 @@ public class SerializeUtil
         if (BitConverter.IsLittleEndian && typeSize > 1)
         {
             for (int i = 0; i < typeSize; i++)
-            { // ƒlƒbƒgƒ[ƒNƒoƒCƒgƒI[ƒ_[‚ÅŠi”[
+            { // ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ãƒã‚¤ãƒˆã‚ªãƒ¼ãƒ€ãƒ¼ã«å¤‰æ›
                 tgtBuffer[offset + i] = srcBuffer[typeSize - 1 - i];
             }
         }
@@ -174,12 +175,17 @@ public class SerializeUtil
         return offset;
     }
 
+    static public int ToBytes<T>(ref byte[] byteArray, int offset, T obj) where T : IPacket
+    {
+        return obj.Serialize(ref byteArray, offset);
+    }
+
     static public int ToBytes<T>(ref byte[] byteArray, int offset, IList<T> list) where T : IPacket
     {
         offset = ToBytes(ref byteArray, offset, (ulong)list.Count);
         foreach(var item in list)
         {
-            offset = item.Desrialize(byteArray, offset);
+            offset = item.Serialize(ref byteArray, offset);
         }
         return offset;
     }
