@@ -61,4 +61,5 @@ sysinfo.txt
 crashlytics-build.properties
 
 .vscode
+.vsconfig
 
